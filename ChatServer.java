@@ -11,7 +11,7 @@ public class ChatServer {
       ServerSocket server = new ServerSocket(9999,10, InetAddress.getLocalHost());
 	  out.println("Server Started...");
 	  out.println("Server listening on port: " + 	server.getLocalPort());
-	  out.println("IP address: " + server.getLocalSocketAddress());
+	  out.println("IP address: " + server.getInetAddress().getHostAddress());
 	  int i =0;
       while( true) {
  		 	Socket client = server.accept();
