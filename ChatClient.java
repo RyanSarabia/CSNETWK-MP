@@ -15,10 +15,10 @@ public class ChatClient extends JFrame implements ActionListener {
     JButton btnSend,btnExit;
     Socket client;
     
-    public ChatClient(String uname,String servername) throws Exception {
+    public ChatClient(String uname, String servername, int serverPort,  String serverAddress) throws Exception {
         super(uname);  // set title for frame
         this.uname = uname;
-        client  = new Socket(servername,9999);
+        client  = new Socket(serverAddress, serverPort);
         br = new BufferedReader( new InputStreamReader( client.getInputStream()) ) ;
         pw = new PrintWriter(client.getOutputStream(),true);
         pw.println(uname);  // send name to server
@@ -64,9 +64,14 @@ public class ChatClient extends JFrame implements ActionListener {
         // take username from user
         String name = JOptionPane.showInputDialog(null,"Enter your name :", "Username",
              JOptionPane.PLAIN_MESSAGE);
+        String serverPortString = JOptionPane.showInputDialog(null,"Enter the server port:", "Port Number",
+            JOptionPane.PLAIN_MESSAGE);
+        String serverAddress = JOptionPane.showInputDialog(null,"Enter the IP Address:", "IP Address",
+            JOptionPane.PLAIN_MESSAGE);
+        int serverPort = Integer.parseInt(serverPortString);
         String servername = "localhost";  
         try {
-            new ChatClient( name ,servername);
+            new ChatClient( name ,servername, serverPort, serverAddress);
         } catch(Exception ex) {
             out.println( "Error --> " + ex.getMessage());
         }
