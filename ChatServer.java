@@ -38,7 +38,7 @@ public class ChatServer {
 	class  HandleClient extends Thread {
 		String name = "";
 		BufferedReader input;
-		DataInputStream fileinput;
+		DataOutputStream writer;
 		PrintWriter output;
 		SendFile sender;
 		ReceiveFile receiver;
@@ -47,8 +47,10 @@ public class ChatServer {
 		public HandleClient(Socket client) throws Exception {
 			this.client = client;
 			// get input and output streams
+
 			this.input = new BufferedReader( new InputStreamReader( client.getInputStream())) ;
 			this.output = new PrintWriter ( client.getOutputStream(), true);
+			this.writer = new DataOutputStream(client.getOutputStream());
 			// read name
 			this.name  = input.readLine();
 			users.add(name); // add to vector
@@ -61,14 +63,17 @@ public class ChatServer {
 
 		public void sendFile(String uname, Socket sender) {
 
-			receiver = new ReceiveFile(sender);
-			File file = receiver.receiveTextFile(); //receive from sender
+			try {
+				DataInputStream reader = new DataInputStream(sender.getInputStream()); //sender
+				
+				receiver = new ReceiveFile();
+				receiver.receiveTextFile(reader, writer, output); //receive from sender
+			}
 
-			SendFile filesender = new SendFile(this.client, file);
-
-			//output something to client na code rin na magtrigger yung receivefile.
-			output.println("SEND_FILE_RANDOM_STRING_123456789");
-			filesender.sendTextFile();
+			catch (Exception e)
+			{
+				System.out.println(e.getMessage());
+			}
 
 		}
 			
@@ -95,6 +100,7 @@ public class ChatServer {
 						broadcastFile(name, this.client);
 
 					} else {
+						System.out.println("BROADCAST!");
 						broadcast(name,line); // method  of outer class - send messages to all
 					}
 				} // end of while

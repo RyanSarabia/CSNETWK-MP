@@ -17,6 +17,8 @@ public class ChatClient extends JFrame implements ActionListener {
     FileChooser filechooser;
     SendFile filesender;
     File sendfile;
+    DataInputStream disReader;
+    DataOutputStream dosWriter;
     
     public ChatClient(String uname, String servername) throws Exception {
         super(uname);  // set title for frame
@@ -25,6 +27,8 @@ public class ChatClient extends JFrame implements ActionListener {
         client  = new Socket(servername, 9999);
         br = new BufferedReader( new InputStreamReader( client.getInputStream()) ) ;
         pw = new PrintWriter(client.getOutputStream(), true);
+        dosWriter = new DataOutputStream(client.getOutputStream()); //for sending
+        disReader = new DataInputStream(client.getInputStream()); //for receiving
         pw.println(uname);  // send name to server
         buildInterface();
         new MessagesThread().start();  // create thread for listening for messages
@@ -67,8 +71,8 @@ public class ChatClient extends JFrame implements ActionListener {
             sendfile = filechooser.openFileChooser();
 
             if (sendfile != null) {
-                pw.println("SEND_FILE_RANDOM_STRING_123456789"); // send code to client for file sending. should come first so client can absorb it.
-                filesender = new SendFile(client, sendfile);
+                pw.println("SEND_FILE_RANDOM_STRING_123456789"); // send code to sever for file sending. should come first so client can absorb it.
+                filesender = new SendFile(dosWriter, sendfile);
                 filesender.sendTextFile();
             }
         } 
@@ -95,7 +99,7 @@ public class ChatClient extends JFrame implements ActionListener {
     
     // inner class for Messages Thread
     class  MessagesThread extends Thread {
-        ReceiveFile receiver = new ReceiveFile(client);
+        ReceiveFile receiver = new ReceiveFile();
 
         public void run() {
             String line;
@@ -103,9 +107,22 @@ public class ChatClient extends JFrame implements ActionListener {
                 while(true) {
                     line = br.readLine();
 
+                    System.out.println(line);
+
                     if (line.equals("SEND_FILE_RANDOM_STRING_123456789"))
                     {
-                        receiver.saveTextFile();
+                        String dir = filechooser.openDirectoryChooser();
+                        dir += "/New.txt";
+
+                        System.out.println(dir);
+
+                        if (dir != null){
+                            receiver.saveTextFile(disReader, dir);
+                        }
+                        
+                       else {
+                           //iuser did not accept.
+                       }
 
                     } else {
                         taMessages.append(line + "\n");

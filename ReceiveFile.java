@@ -6,53 +6,42 @@ public class ReceiveFile {
     File file;
     Socket client;
 
-    public ReceiveFile(Socket client) {
+    public ReceiveFile() {
 
-        this.client = client; 
     }
 
-    public File receiveTextFile() {
+    public void receiveTextFile(DataInputStream reader, DataOutputStream writer, PrintWriter pw) {
         try {
-
-            file = File.createTempFile("tmp", ".txt", new File("./test"));
             
-            DataInputStream disReader = new DataInputStream(client.getInputStream()); //sender
-            DataOutputStream dosWriter = new DataOutputStream(new FileOutputStream(file));
+            // DataInputStream disReader = new DataInputStream(client.getInputStream()); //sender
+            // DataOutputStream dosWriter = new DataOutputStream(client.getOutputStream());
+
+           writer.writeBytes("SEND_FILE_RANDOM_STRING_123456789\n");
 
             int count;
             byte[] buffer = new byte[8192];
-            while ((count = disReader.read(buffer)) > 0)
+            while ((count = reader.read(buffer)) > 0)
             {
-                dosWriter.write(buffer, 0, count);
+                writer.write(buffer, 0, count);
             }
-
-            file.deleteOnExit();
-            dosWriter.close();
-            return file;
-
         }
 
         catch (Exception e)
         {
             e.printStackTrace();
         }
-
-        return null;
     }
 
-    public void saveTextFile() {
+    public void saveTextFile(DataInputStream reader, String dir) {
         try {
-
-            String dir = new FileChooser().openDirectoryChooser() + "/New.txt";
             this.file = new File(dir); //gives path to file
             file.createNewFile();
 
-			DataInputStream disReader = new DataInputStream(client.getInputStream()); //receiver
             DataOutputStream dosWriter = new DataOutputStream(new FileOutputStream(file));
 
             int count;
             byte[] buffer = new byte[8192];
-            while ((count = disReader.read(buffer)) > 0)
+            while ((count = reader.read(buffer)) > 0)
             {
                 dosWriter.write(buffer, 0, count);
             }

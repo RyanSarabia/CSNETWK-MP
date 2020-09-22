@@ -42,8 +42,6 @@ public class FileChooser extends JPanel {
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
             filename = chooser.getSelectedFile().getName();
             fileExtension = filename.substring(filename.lastIndexOf("."), filename.length());
-            System.out.println(fileExtension);
-
             return chooser.getSelectedFile();
             }
 
@@ -67,7 +65,6 @@ public class FileChooser extends JPanel {
 
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
             directory = chooser.getSelectedFile().getAbsolutePath();
-            System.out.println(directory);
             return directory;
             }
     
