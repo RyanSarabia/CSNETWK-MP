@@ -9,7 +9,7 @@ public class ChatServer {
 
 	public void process() throws Exception  {
 		ServerSocket server = new ServerSocket(9999,10, InetAddress.getLocalHost());
-		out.println("Server Started...");
+		out.println("Server Running...");
 		out.println("Server listening on port: " + 	server.getLocalPort());
 		out.println("IP address: " + server.getInetAddress().getHostAddress());
 		int i =0;
@@ -54,13 +54,19 @@ public class ChatServer {
         }
         public void run()  {
 			String line;
-			 
+			broadcast("Server", name+ " has connected to the chat.");
 			try{
 				while(true){
 					line = input.readLine();
 					if (line.equals("end")){
+						broadcast("Server", name+ " has disconnected...");
 						clients.remove(this);
 						users.remove(name);
+						if(users.size()==0){
+							out.println("Both users disconnected...");
+							out.println("Shutting down server");
+							System.exit(0);
+						}
 						break;
 					}
 					broadcast(name,line); // method  of outer class - send messages to all

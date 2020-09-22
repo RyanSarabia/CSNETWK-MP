@@ -23,10 +23,17 @@ public class ChatClient extends JFrame implements ActionListener {
         pw = new PrintWriter(client.getOutputStream(),true);
         pw.println(uname);  // send name to server
         buildInterface();
+        this.addWindowListener(new WindowAdapter(){
+            public void WindowClosing(WindowEvent e){
+                pw.println("end");
+                System.exit(0);
+            }
+        });
         new MessagesThread().start();  // create thread for listening for messages
     }
     
     public void buildInterface() {
+        
         btnSend = new JButton("Send");
         btnExit = new JButton("Exit");
         taMessages = new JTextArea();
@@ -60,6 +67,7 @@ public class ChatClient extends JFrame implements ActionListener {
     }
     
     public static void main(String ... args) {
+
     
         // take username from user
         String name = JOptionPane.showInputDialog(null,"Enter your name :", "Username",
@@ -71,7 +79,14 @@ public class ChatClient extends JFrame implements ActionListener {
         int serverPort = Integer.parseInt(serverPortString);
         String servername = "localhost";  
         try {
-            new ChatClient( name ,servername, serverPort, serverAddress);
+            ChatClient frame = new ChatClient( name ,servername, serverPort, serverAddress);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    frame.pw.println("end");
+                    System.exit(0);
+                }
+            });
         } catch(Exception ex) {
             out.println( "Error --> " + ex.getMessage());
         }
@@ -81,6 +96,7 @@ public class ChatClient extends JFrame implements ActionListener {
     // inner class for Messages Thread
     class  MessagesThread extends Thread {
         public void run() {
+            
             String line;
             try {
                 while(true) {
