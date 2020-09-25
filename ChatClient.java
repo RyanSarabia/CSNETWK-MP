@@ -16,7 +16,7 @@ public class ChatClient extends JFrame implements ActionListener {
     JTextArea  taMessages;
     JTextField tfInput;
     JButton btnSend,btnExit, btnLog, btnFile;
-    JFileChooser fc;
+    FileChooser fc;
     Socket client;
 
     public ChatClient(String uname, String servername, int serverPort,  String serverAddress) throws Exception {
@@ -74,14 +74,8 @@ public class ChatClient extends JFrame implements ActionListener {
         else if (evt.getSource() == btnLog)
             pw.println("printLogs");
         else if(evt.getSource() == btnFile){
-            fc = new JFileChooser();
-            fc.setCurrentDirectory(new java.io.File("c:\\"));
-            fc.setDialogTitle("Select file to send");
-            fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-            if(fc.showOpenDialog(btnFile)==JFileChooser.APPROVE_OPTION){
-                File curFile = fc.getSelectedFile();
-                //taMessages.append("You: sent "+curFile.getName()+".\n");
-
+            fc = new FileChooser();
+                File curFile = fc.openFileChooser();
                 pw.println("sendFile");
                 pw.println(curFile.getName());
                 try{
@@ -100,7 +94,6 @@ public class ChatClient extends JFrame implements ActionListener {
                 } catch(Exception ex) {
                     ex.printStackTrace();
                 }
-            }
         }      
         else {
             // send message to server
@@ -170,32 +163,27 @@ public class ChatClient extends JFrame implements ActionListener {
                         String fileType = originalFilename.substring(originalFilename.lastIndexOf('.')+1);
                         String fileExt = "."+fileType;
                         FileNameExtensionFilter filter = new FileNameExtensionFilter(fileType, fileExt);
-                        JFileChooser fc = new JFileChooser();
-                        fc.setFileFilter(filter);
-                        fc.setCurrentDirectory(new java.io.File("c:\\"));
-                        fc.setDialogTitle("Save file");
-                        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-                        if(fc.showSaveDialog(getSelf())==JFileChooser.APPROVE_OPTION){
-                            File path = fc.getSelectedFile();
+                        FileChooser fc = new FileChooser();
+                        File path = fc.openDirectoryChooser(filter);
 
-                            File newFile = new File(path.getAbsolutePath()+fileExt);
-                            newFile.createNewFile();
+                        File newFile = new File(path.getAbsolutePath()+fileExt);
+                        newFile.createNewFile();
 
-                            DataOutputStream dosWriter = new DataOutputStream(new FileOutputStream(newFile));
-                            DataInputStream disReader = new DataInputStream(client.getInputStream());
-                            pw.println("fileSendReady");
-                            long fileSize = disReader.readLong();
-                            int count;
-                            byte[] buffer = new byte[8192];
-                            while (fileSize > 0)
-                            {
-                                count = disReader.read(buffer);
-                                dosWriter.write(buffer, 0, count);
-                                fileSize -= count;
-                            }
-                            dosWriter.flush();
-                            dosWriter.close();
+                        DataOutputStream dosWriter = new DataOutputStream(new FileOutputStream(newFile));
+                        DataInputStream disReader = new DataInputStream(client.getInputStream());
+                        pw.println("fileSendReady");
+                        long fileSize = disReader.readLong();
+                        int count;
+                        byte[] buffer = new byte[8192];
+                        while (fileSize > 0)
+                        {
+                            count = disReader.read(buffer);
+                            dosWriter.write(buffer, 0, count);
+                            fileSize -= count;
                         }
+                        dosWriter.flush();
+                        dosWriter.close();
+
                     }
                     else{
                         taMessages.append(line + "\n"); //appends to chatbox
