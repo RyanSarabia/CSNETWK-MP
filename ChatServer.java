@@ -23,7 +23,7 @@ public class ChatServer {
 	}
 	public static void main(String ... args) throws Exception {
 		new ChatServer().process();
-	} // end of main
+	} 
 
   	public void broadcast(String user, String message)  {
 		// send message to all connected users
@@ -37,23 +37,35 @@ public class ChatServer {
 		if (! user.equals("Server"))
 			newLog(user, dest.substring(1), "Send message");
 	 }
+
+	public void broadcastFile(String user, File file){
+		String dest = "";
+		for ( HandleClient c : clients )
+			if ( ! c.getUserName().equals(user) ){
+				c.sendFile(user, file);
+				dest += ","+c.getUserName();
+			}
+		newLog(user, dest.substring(1), "File Send");
+	}
 	 
 	public void newLog(String source, String dest, String event){
 		Timestamp time = new Timestamp(System.currentTimeMillis());
 		String log = time+" "+source+" to "+dest+" "+event;
 		logs.add(log);
-
 	}
 
   	class  HandleClient extends Thread {
         String name = "";
 		BufferedReader input;
 		PrintWriter output;
+		File fileToSend;
+		Socket client;
 
 		public HandleClient(Socket  client) throws Exception {
 			// get input and output streams
 			input = new BufferedReader( new InputStreamReader( client.getInputStream())) ;
 			output = new PrintWriter ( client.getOutputStream(),true);
+			this.client = client;
 			// read name
 			name  = input.readLine();
 			users.add(name); // add to vector
@@ -64,6 +76,33 @@ public class ChatServer {
         public void sendMessage(String uname,String  msg) {
 	  		output.println( uname + ":" + msg);
 		}
+
+		public void sendFile(String uname, File file)  {
+			sendMessage(uname,"sent "+file.getName());
+			output.println("TrySomething");
+			output.println(file.getName());
+			fileToSend = file;
+		}
+
+		public void writeFile(){
+			try{
+				DataInputStream disReader = new DataInputStream(new FileInputStream(fileToSend));
+				DataOutputStream dosWriter = new DataOutputStream(client.getOutputStream());
+				long fileSize = fileToSend.length();
+				dosWriter.writeLong(fileSize);
+				int count;
+				byte[] buffer = new byte[8192];
+				while ((count = disReader.read(buffer)) > 0)
+				{
+					dosWriter.write(buffer, 0, count);
+				}
+				dosWriter.flush();
+				disReader.close();
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+
 		
         public String getUserName() {  
             return name; 
@@ -94,9 +133,41 @@ public class ChatServer {
 						textLogs = textLogs + "end of file";
 						sendMessage("Print Logs", textLogs);
 					}
-					else {
-						broadcast(name,line); // method  of outer class - send messages to all
-					}			
+					else if(line.equals("sendFile")){
+
+						String fileName = input.readLine();
+						File dir = new File("serverDirectory");
+						if( ! dir.exists())
+							dir.mkdirs();
+						
+
+						File file = new File("serverDirectory/"+fileName);
+						file.createNewFile();
+
+						DataOutputStream dosWriter = new DataOutputStream(new FileOutputStream(file));
+						DataInputStream disReader = new DataInputStream(client.getInputStream());
+						long fileSize = disReader.readLong();
+						int count;
+						byte[] buffer = new byte[8192];
+						while (fileSize > 0)
+						{
+							count = disReader.read(buffer);
+							dosWriter.write(buffer, 0, count);
+							fileSize -= count;
+						}
+						dosWriter.flush();
+						dosWriter.close();
+
+						if(users.size() < 2)
+							sendMessage("Server", "No other user connected. File sending cancelled.");
+						else 
+							broadcastFile(name, file);
+						
+					}
+					else if (line.equals("fileSendReady"))
+						writeFile();
+					else 
+						broadcast(name,line); // method  of outer class - send messages to all		
 				} // end of while
 			} // try
 			catch(Exception ex) {
