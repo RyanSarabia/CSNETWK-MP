@@ -30,7 +30,7 @@ public class FileChooser extends JPanel {
    }
 
     public File openFileChooser() {
-        chooser.setCurrentDirectory(new java.io.File("c:\\"));
+        chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle("Choose a File");
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setFileFilter(filter);
@@ -51,11 +51,11 @@ public class FileChooser extends JPanel {
 
     }
 
-    public File openDirectoryChooser(FileNameExtensionFilter filter) {
+    public File openDirectoryChooser() {
         File directory;
 
-        chooser.setFileFilter(filter);
-        chooser.setCurrentDirectory(new java.io.File("c:\\"));
+        // chooser.setFileFilter(filter);
+        chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle("Choose a Directory");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     

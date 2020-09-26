@@ -1,5 +1,8 @@
 import java.io.*;
 import java.util.*;
+
+import javax.swing.JOptionPane;
+
 import java.net.*;
 import java.sql.*;
 import static java.lang.System.out;
@@ -32,7 +35,7 @@ public class ChatServer {
 	    for ( HandleClient c : clients )
 	    	if ( ! c.getUserName().equals(user)){
 				c.sendMessage(user,message);
-				dest = dest + ", "+c.getUserName();
+				dest = dest + ", " +c.getUserName();
 			}
 		if (! user.equals("Server"))
 			newLog(user, dest.substring(1), "Send message");
@@ -79,7 +82,7 @@ public class ChatServer {
 
 		public void sendFile(String uname, File file)  {
 			sendMessage(uname,"sent "+file.getName());
-			output.println("TrySomething");
+			output.println("SEND_FILE_CODE_123456");
 			output.println(file.getName());
 			fileToSend = file;
 		}
@@ -121,18 +124,34 @@ public class ChatServer {
 						if(users.size()==0){
 							out.println("Both users disconnected...");
 							out.println("Shutting down server");
+							int saveLogs = JOptionPane.showConfirmDialog(null, "Save logs?", "Do you want to save logs?", JOptionPane.YES_NO_OPTION);
+							if(saveLogs == JOptionPane.YES_OPTION)
+								{
+									try{
+										File logText = new File("CHAT_LOGS.txt");
+										PrintWriter logWriter = new PrintWriter(logText);
+
+										for(String log: logs){
+											logWriter.println(log);
+										}
+										logWriter.flush();
+										logWriter.close();
+										System.out.println("Log text file created!");
+									}
+									catch(IOException e){}
+								}
 							System.exit(0);
 						}
 						break;
 					}
-					else if(line.equals("printLogs")){
-						String textLogs = "";
-						for(String log: logs){
-							textLogs = textLogs + log + "\n";
-						}
-						textLogs = textLogs + "end of file";
-						sendMessage("Print Logs", textLogs);
-					}
+					// else if(line.equals("printLogs")){
+					// 	String textLogs = "";
+					// 	for(String log: logs){
+					// 		textLogs = textLogs + log + "\n";
+					// 	}
+					// 	textLogs = textLogs + "end of file";
+					// 	sendMessage("Print Logs", textLogs);
+					// }
 					else if(line.equals("sendFile")){
 
 						String fileName = input.readLine();

@@ -40,8 +40,8 @@ public class ChatClient extends JFrame implements ActionListener {
         
         btnSend = new JButton("Send");
         btnExit = new JButton("Exit");
-        btnLog = new JButton("Logs");
-        btnFile = new JButton("File");
+        // btnLog = new JButton("Logs");
+        btnFile = new JButton("Send File");
         taMessages = new JTextArea();
         taMessages.setRows(10);
         taMessages.setColumns(50);
@@ -54,16 +54,20 @@ public class ChatClient extends JFrame implements ActionListener {
         bp.add(tfInput);
         bp.add(btnSend);
         bp.add(btnFile);
-        bp.add(btnLog);
+        // bp.add(btnLog);
         bp.add(btnExit);
         add(bp,"South");
         btnSend.addActionListener(this);
         btnFile.addActionListener(this);
         btnExit.addActionListener(this);
-        btnLog.addActionListener(this);
-        setSize(500,300);
+        // btnLog.addActionListener(this);
+
+        sp.getRootPane().setDefaultButton(btnSend);
+        btnSend.requestFocus();
+        setSize(500,400);
         setVisible(true);
         pack();
+        setLocationRelativeTo(null);
     }
     
     public void actionPerformed(ActionEvent evt) {
@@ -71,8 +75,8 @@ public class ChatClient extends JFrame implements ActionListener {
             pw.println("end");  // send end to server so that server know about the termination
             System.exit(0);
         }
-        else if (evt.getSource() == btnLog)
-            pw.println("printLogs");
+        // else if (evt.getSource() == btnLog)
+        //     pw.println("printLogs");
         else if(evt.getSource() == btnFile){
             fc = new FileChooser();
                 File curFile = fc.openFileChooser();
@@ -108,7 +112,7 @@ public class ChatClient extends JFrame implements ActionListener {
 
     
         // take username from user
-        String name = JOptionPane.showInputDialog(null,"Enter your name :", "Username",
+        String name = JOptionPane.showInputDialog(null,"Enter your name:", "Username",
              JOptionPane.PLAIN_MESSAGE);
         String serverPortString = JOptionPane.showInputDialog(null,"Enter the server port:", "Port Number",
             JOptionPane.PLAIN_MESSAGE);
@@ -140,31 +144,31 @@ public class ChatClient extends JFrame implements ActionListener {
                 while(true) {
                     line = br.readLine();
                     System.out.println(line);
-                    if(line.substring(0,10).equals("Print Logs")){ //creates log text files
-                        try{
-                            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                            File logText = new File("chatLog.txt");
-                            PrintWriter logWriter = new PrintWriter(logText);
-                            String curLine = line.substring(11);
-                            while(!curLine.equals("end of file")){
-                                logWriter.println(curLine);
-                                curLine = br.readLine();
-                            }
-                            logWriter.flush();
-                            logWriter.close();
-                            System.out.println("Log text file created!");
-                        }
-                        catch(IOException e){}
-                    } 
-                    else if(line.equals("TrySomething")){
-                        System.out.println("ENTERS HERE");
+                    // if(line.substring(0,10).equals("Print Logs")){ //creates log text files
+                    //     try{
+                    //         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                    //         File logText = new File("chatLog.txt");
+                    //         PrintWriter logWriter = new PrintWriter(logText);
+                    //         String curLine = line.substring(11);
+                    //         while(!curLine.equals("end of file")){
+                    //             logWriter.println(curLine);
+                    //             curLine = br.readLine();
+                    //         }
+                    //         logWriter.flush();
+                    //         logWriter.close();
+                    //         System.out.println("Log text file created!");
+                    //     }
+                    //     catch(IOException e){}
+                    // } 
+                    if(line.equals("SEND_FILE_CODE_123456")){
+                        // System.out.println("ENTERS HERE");
                         String originalFilename = br.readLine();
                         
                         String fileType = originalFilename.substring(originalFilename.lastIndexOf('.')+1);
                         String fileExt = "."+fileType;
-                        FileNameExtensionFilter filter = new FileNameExtensionFilter(fileType, fileExt);
+                        // FileNameExtensionFilter filter = new FileNameExtensionFilter(fileType, fileExt);
                         FileChooser fc = new FileChooser();
-                        File path = fc.openDirectoryChooser(filter);
+                        File path = fc.openDirectoryChooser();
 
                         File newFile = new File(path.getAbsolutePath()+fileExt);
                         newFile.createNewFile();
