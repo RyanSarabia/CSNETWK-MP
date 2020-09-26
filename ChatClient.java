@@ -79,7 +79,8 @@ public class ChatClient extends JFrame implements ActionListener {
         //     pw.println("printLogs");
         else if(evt.getSource() == btnFile){
             fc = new FileChooser();
-                File curFile = fc.openFileChooser();
+            File curFile = fc.openFileChooser();
+            if (curFile !=null) {
                 pw.println("sendFile");
                 pw.println(curFile.getName());
                 try{
@@ -98,6 +99,7 @@ public class ChatClient extends JFrame implements ActionListener {
                 } catch(Exception ex) {
                     ex.printStackTrace();
                 }
+            }
         }      
         else {
             // send message to server
